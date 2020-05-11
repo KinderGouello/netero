@@ -1,0 +1,7 @@
+parameters:
+  name: test
+
+services:
+  "service/foo":
+    arguments:
+      foo: bar
