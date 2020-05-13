@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
     /* Basic Options */
-    "target": "ES2019",
+    "target": "es5",
     "module": "commonjs",
     "lib": [
       "dom",
-      "ES2019"
+      "es5"
     ],
+    "declaration": true,
     "sourceMap": true,
-    "outDir": "build",
+    "outDir": "dist",
     /* Strict Type-Checking Options */
     "strict": true,
     "noImplicitAny": true,
@@ -26,9 +27,10 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     /* Advanced Options */
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "test/**/*"
   ]
 }
