@@ -11,6 +11,12 @@ export function getServiceAlias(alias: string) {
   return alias.substring(1);
 }
 
+export function isEs5Class(value: any): boolean {
+  if (!value.prototype) return false;
+  const prototypeKeys = Object.keys(value.prototype);
+  return prototypeKeys.length >= 1;
+}
+
 export function isClass(value: any): boolean {
   try {
     new value();

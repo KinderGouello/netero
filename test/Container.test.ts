@@ -25,6 +25,7 @@ import fromMultipleFiles1 from './mock/fromMultipleFiles/file1';
 import fromMultipleFiles2 from './mock/fromMultipleFiles/file2';
 import { Foo as FromMultipleFilesFoo } from './mock/fromMultipleFiles/foo';
 import { Bar as FromMultipleFilesBar } from './mock/fromMultipleFiles/bar';
+import es5Class from './mock/es5Class';
 import fullConfiguration from './mock/fullConfiguration';
 import { NewsletterManager } from './mock/fullConfiguration/manager/NewsletterManager';
 import { Mailer } from './mock/fullConfiguration/service/Mailer';
@@ -163,6 +164,15 @@ describe('Container', () => {
       expect(fooService).toBeInstanceOf(FromMultipleFilesFoo);
       expect(fooService.getValues().name).toBe('foo name');
       expect(fooService.getValues().bar).toBe(barService);
+    });
+
+    it('should inject for es5 classes (IIFE)', () => {
+      const container = new Container();
+      container.load(new TestLoader(es5Class));
+      container.compile();
+      const fooService = container.get('@mock.es5Class.foo');
+
+      expect(fooService.getFirstName()).toBe('name');
     });
 
     it('should inject all classes', () => {
