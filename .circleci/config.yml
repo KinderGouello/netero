@@ -15,6 +15,9 @@ jobs:
           paths:
             - node_modules
       - run:
+          name: Lint and coding style
+          command: npm run lint
+      - run:
           name: Run tests
           command: npm run coverage
       - run:
