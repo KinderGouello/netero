@@ -12,7 +12,12 @@ import {
   InvalidServiceArgument,
   InvalidParameterArgument,
 } from './Errors';
-import { getServiceAlias, convertPathToAlias, isClass } from './Util';
+import {
+  getServiceAlias,
+  convertPathToAlias,
+  isClass,
+  isEs5Class,
+} from './Util';
 
 export class Container {
   // @ts-ignore
@@ -133,8 +138,8 @@ export class Container {
     >();
     this.definitions.forEach((definition, alias) => {
       const classe = require(definition.getClass());
-      const instantiableClasses = Object.values(classe).filter((value) =>
-        isClass(value)
+      const instantiableClasses = Object.values(classe).filter(
+        (value) => isEs5Class(value) || isClass(value)
       );
 
       if (!instantiableClasses.length) {
