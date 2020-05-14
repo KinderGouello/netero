@@ -1,14 +1,5 @@
 import { Container } from '../src/Container';
 import { Loader } from '../src/loader/Loader';
-import {
-  ServiceNotExist,
-  InvalidServiceArgument,
-  InvalidParameterArgument,
-  NoClassDeclared,
-  ServiceAlreadyDeclared,
-  ParameterAlreadyDeclared,
-  InvalidServiceAlias,
-} from '../src/Errors';
 import noParameterConfig from './mock/noParameter';
 import noServiceConfig from './mock/noService';
 import withParameterArgumentsConfig from './mock/withParameterArguments';
@@ -29,6 +20,13 @@ import es5Class from './mock/es5Class';
 import fullConfiguration from './mock/fullConfiguration';
 import { NewsletterManager } from './mock/fullConfiguration/manager/NewsletterManager';
 import { Mailer } from './mock/fullConfiguration/service/Mailer';
+import { ServiceNotExist } from '../src/errors/ServiceNotExist';
+import { InvalidServiceAlias } from '../src/errors/InvalidServiceAlias';
+import { ParameterAlreadyDeclared } from '../src/errors/ParameterAlreadyDeclared';
+import { ServiceAlreadyDeclared } from '../src/errors/ServiceAlreadyDeclared';
+import { NoClassDeclared } from '../src/errors/NoClassDeclared';
+import { InvalidServiceArgument } from '../src/errors/InvalidServiceArgument';
+import { InvalidParameterArgument } from '../src/errors/InvalidParameterArgument';
 
 class TestLoader extends Loader {
   constructor(

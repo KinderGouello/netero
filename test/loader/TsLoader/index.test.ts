@@ -1,5 +1,5 @@
 import { TsLoader } from '../../../src/loader/TsLoader';
-import { InvalidConfigurationFile } from '../../../src/Errors';
+import { InvalidConfigurationFile } from '../../../src/errors/InvalidConfigurationFile';
 
 describe('TsLoader', () => {
   it('should throw if file is not found', () => {
