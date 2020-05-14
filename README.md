@@ -16,20 +16,35 @@ Inspired by the PHP framework [Symfony](https://symfony.com/doc/current/componen
 By using this library, your code will never be changed to add decorators or something else to implement a dependency injection.
 All dependencies will be written in an external configuration file, making things easier to change.
 
+## Requirements
+
+Typescript target >= `es5`, however for a better usage, it is recommended to set the target to >= `es6`
+
 ## Install
 
 ```bash
 $ npm install netero
 ```
 
-
 ## Getting started
 
 - Create your Typescript classes:
 
 ```typescript
+// Mailer.ts
+export class Mailer {
+  private transport: string;
+
+  constructor(transport: string) {
+    this.transport = transport;
+  }
+}
+
+```
+
+```typescript
 // NewsletterManager.ts
-import { Mailer } from '../service/Mailer';
+import { Mailer } from './Mailer';
 
 export class NewsletterManager {
   private mailer: Mailer;
@@ -40,32 +55,18 @@ export class NewsletterManager {
 }
 ```
 
-```typescript
-// Mailer.ts
-export class Mailer {
-  private transport: string;
-
-  constructor(transport: string) {
-    this.transport = transport;
-  }
-
-  ...
-}
-
-```
-
 - Configure your dependencies:
 
 ```yaml
-# config.yml
+# config.yaml
 parameters:
   mailer.transport: sendmail
 
 services:
-  "Mailer":
+  Mailer:
     arguments:
       - "%mailer.transport%"
-  "NewsletterManager":
+  NewsletterManager:
     arguments:
       - "@Mailer"
 ```
@@ -76,7 +77,8 @@ services:
 // index.ts
 const container = new Container();
 container.load(new YamlLoader('./config.yaml'));
-const newsletterManaer = container.get('@NewsletterManager'); // NewsletterManager { mailer: Mailer }
+container.compile();
+const newsletterManager = container.get('@NewsletterManager'); // NewsletterManager { mailer: Mailer }
 ```
 
 ## License

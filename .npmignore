@@ -1,0 +1,10 @@
+.circleci
+.github
+img
+src
+test
+node_modules
+coverage
+.gitignore
+jest.config.js
+tsconfig.json

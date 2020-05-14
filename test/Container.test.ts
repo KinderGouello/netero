@@ -1,14 +1,5 @@
 import { Container } from '../src/Container';
 import { Loader } from '../src/loader/Loader';
-import {
-  ServiceNotExist,
-  InvalidServiceArgument,
-  InvalidParameterArgument,
-  NoClassDeclared,
-  ServiceAlreadyDeclared,
-  ParameterAlreadyDeclared,
-  InvalidServiceAlias,
-} from '../src/Errors';
 import noParameterConfig from './mock/noParameter';
 import noServiceConfig from './mock/noService';
 import withParameterArgumentsConfig from './mock/withParameterArguments';
@@ -25,9 +16,17 @@ import fromMultipleFiles1 from './mock/fromMultipleFiles/file1';
 import fromMultipleFiles2 from './mock/fromMultipleFiles/file2';
 import { Foo as FromMultipleFilesFoo } from './mock/fromMultipleFiles/foo';
 import { Bar as FromMultipleFilesBar } from './mock/fromMultipleFiles/bar';
+import es5Class from './mock/es5Class';
 import fullConfiguration from './mock/fullConfiguration';
 import { NewsletterManager } from './mock/fullConfiguration/manager/NewsletterManager';
 import { Mailer } from './mock/fullConfiguration/service/Mailer';
+import { ServiceNotExist } from '../src/errors/ServiceNotExist';
+import { InvalidServiceAlias } from '../src/errors/InvalidServiceAlias';
+import { ParameterAlreadyDeclared } from '../src/errors/ParameterAlreadyDeclared';
+import { ServiceAlreadyDeclared } from '../src/errors/ServiceAlreadyDeclared';
+import { NoClassDeclared } from '../src/errors/NoClassDeclared';
+import { InvalidServiceArgument } from '../src/errors/InvalidServiceArgument';
+import { InvalidParameterArgument } from '../src/errors/InvalidParameterArgument';
 
 class TestLoader extends Loader {
   constructor(
@@ -163,6 +162,15 @@ describe('Container', () => {
       expect(fooService).toBeInstanceOf(FromMultipleFilesFoo);
       expect(fooService.getValues().name).toBe('foo name');
       expect(fooService.getValues().bar).toBe(barService);
+    });
+
+    it('should inject for es5 classes (IIFE)', () => {
+      const container = new Container();
+      container.load(new TestLoader(es5Class));
+      container.compile();
+      const fooService = container.get('@mock.es5Class.foo');
+
+      expect(fooService.getFirstName()).toBe('name');
     });
 
     it('should inject all classes', () => {

@@ -1,6 +1,6 @@
 export class Definition {
   private classe: string;
-  private arguments: Array<any> = [];
+  private arguments: any[] = [];
 
   constructor(classe: string) {
     this.classe = classe;
@@ -15,7 +15,7 @@ export class Definition {
     return this;
   }
 
-  getArguments(): Array<any> {
+  getArguments(): any[] {
     return this.arguments;
   }
 }

@@ -1,11 +1,11 @@
 export class Service {
-  private instance: Function;
+  private instance: () => void;
 
-  constructor(instance: Function) {
+  constructor(instance: () => void) {
     this.instance = instance;
   }
 
-  getInstance(): Function {
+  getInstance(): () => void {
     return this.instance;
   }
 }

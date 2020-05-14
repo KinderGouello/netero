@@ -1,4 +1,4 @@
-import { InvalidServiceAlias } from './Errors';
+import { InvalidServiceAlias } from './errors/InvalidServiceAlias';
 
 export function convertPathToAlias(path: string): string {
   return path.replace(/\//g, '.');
@@ -11,8 +11,15 @@ export function getServiceAlias(alias: string) {
   return alias.substring(1);
 }
 
+export function isEs5Class(value: any): boolean {
+  if (!value.prototype) return false;
+  const prototypeKeys = Object.keys(value.prototype);
+  return prototypeKeys.length >= 1;
+}
+
 export function isClass(value: any): boolean {
   try {
+    // tslint:disable-next-line
     new value();
   } catch (error) {
     return false;

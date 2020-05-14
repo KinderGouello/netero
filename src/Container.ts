@@ -5,14 +5,17 @@ import { Parameter } from './Parameter';
 import { Loader } from './loader/Loader';
 import { Service } from './Service';
 import {
-  ParameterAlreadyDeclared,
-  ServiceAlreadyDeclared,
-  ServiceNotExist,
-  NoClassDeclared,
-  InvalidServiceArgument,
-  InvalidParameterArgument,
-} from './Errors';
-import { getServiceAlias, convertPathToAlias, isClass } from './Util';
+  getServiceAlias,
+  convertPathToAlias,
+  isClass,
+  isEs5Class,
+} from './Util';
+import { ParameterAlreadyDeclared } from './errors/ParameterAlreadyDeclared';
+import { ServiceAlreadyDeclared } from './errors/ServiceAlreadyDeclared';
+import { InvalidServiceArgument } from './errors/InvalidServiceArgument';
+import { InvalidParameterArgument } from './errors/InvalidParameterArgument';
+import { NoClassDeclared } from './errors/NoClassDeclared';
+import { ServiceNotExist } from './errors/ServiceNotExist';
 
 export class Container {
   // @ts-ignore
@@ -133,8 +136,8 @@ export class Container {
     >();
     this.definitions.forEach((definition, alias) => {
       const classe = require(definition.getClass());
-      const instantiableClasses = Object.values(classe).filter((value) =>
-        isClass(value)
+      const instantiableClasses = Object.values(classe).filter(
+        (value) => isEs5Class(value) || isClass(value)
       );
 
       if (!instantiableClasses.length) {
