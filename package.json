@@ -1,18 +1,23 @@
 {
   "name": "netero",
-  "version": "0.1.0",
-  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "version": "0.2.0",
+  "description": "Typescript framework agnostic dependency injection library",
   "dependencies": {
     "ajv": "^6.12.2",
+    "js-yaml": "^3.13.1",
     "wavy": "^1.0.4"
   },
   "scripts": {
     "build": "tsc",
     "test": "NODE_ENV=test jest --runInBand",
     "coverage": "NODE_ENV=test jest --runInBand --collectCoverage",
+    "tslint": "tslint -c tslint.json 'src/**/*.ts'",
     "lint": "npm run prettier && npm run tslint",
     "prettier": "prettier -l '{src,test}/**/*.{ts,js}'",
-    "prettier:write": "prettier --write '{src,test}/**/*.{ts,js}'"
+    "prettier:write": "prettier --write '{src,test}/**/*.{ts,js}'",
+    "prepare": "npm run build"
   },
   "keywords": [
     "ioc",
@@ -26,18 +31,26 @@
     "dependency inversion",
     "inversion of control container"
   ],
+  "homepage": "https://github.com/KinderGouello/netero",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KinderGouello/netero.git"
+  },
+  "bugs": {
+    "url": "https://github.com/KinderGouello/netero/issues"
+  },
   "author": "Rémy Gouello",
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^25.2.1",
     "@types/js-yaml": "^3.12.3",
     "@types/node": "^13.13.5",
+    "conventional-changelog": "^3.1.21",
     "jest": "^25.5.4",
-    "js-yaml": "^3.13.1",
-    "nodemon": "^2.0.3",
     "prettier": "^2.0.5",
     "ts-jest": "^25.5.1",
     "ts-node": "^8.10.1",
+    "tslint": "^6.1.2",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.8.3"
   }

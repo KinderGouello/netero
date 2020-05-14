@@ -1,5 +1,5 @@
 import Ajv from 'ajv';
-import { InvalidConfigurationFile } from '../Errors';
+import { InvalidConfigurationFile } from '../errors/InvalidConfigurationFile';
 
 const ajv = new Ajv({
   allErrors: true,
@@ -30,13 +30,13 @@ type ParameterDefinition = {
 };
 
 type ServiceDefinition = {
-  arguments: Array<string>;
-  factory: Function;
+  arguments: string[];
+  factory: () => void;
 };
 
 type FileConfig = {
-  parameters: Array<ParameterDefinition>;
-  services: Array<ServiceDefinition>;
+  parameters: ParameterDefinition[];
+  services: ServiceDefinition[];
 };
 
 export abstract class Loader {

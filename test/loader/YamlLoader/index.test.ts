@@ -1,6 +1,6 @@
-import { InvalidConfigurationFile } from '../../../src/Errors';
 import { YamlLoader } from '../../../src/loader/YamlLoader';
 import { YAMLException } from 'js-yaml';
+import { InvalidConfigurationFile } from '../../../src/errors/InvalidConfigurationFile';
 
 describe('YamlLoader', () => {
   it('should throw if file is not found', () => {
