@@ -1,5 +1,5 @@
-import { InvalidConfigurationFile } from '../../../src/Errors';
 import { JsonLoader } from '../../../src/loader/JsonLoader';
+import { InvalidConfigurationFile } from '../../../src/errors/InvalidConfigurationFile';
 
 describe('JsonLoader', () => {
   it('should throw if file is not found', () => {

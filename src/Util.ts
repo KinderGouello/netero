@@ -1,4 +1,4 @@
-import { InvalidServiceAlias } from './Errors';
+import { InvalidServiceAlias } from './errors/InvalidServiceAlias';
 
 export function convertPathToAlias(path: string): string {
   return path.replace(/\//g, '.');
@@ -19,6 +19,7 @@ export function isEs5Class(value: any): boolean {
 
 export function isClass(value: any): boolean {
   try {
+    // tslint:disable-next-line
     new value();
   } catch (error) {
     return false;
