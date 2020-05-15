@@ -178,4 +178,12 @@ export class Container {
     }
     return service.getInstance();
   }
+
+  has(alias: string): boolean {
+    try {
+      return !!this.services.get(getServiceAlias(alias));
+    } catch (error) {
+      return false;
+    }
+  }
 }
