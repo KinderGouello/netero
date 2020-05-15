@@ -31,26 +31,33 @@ $ npm install netero
 - Create your Typescript classes:
 
 ```typescript
-// Mailer.ts
+// folder/Mailer.ts
 export class Mailer {
   private transport: string;
 
   constructor(transport: string) {
     this.transport = transport;
   }
-}
 
+  getTransport() {
+    return this.transport;
+  }
+}
 ```
 
 ```typescript
 // NewsletterManager.ts
-import { Mailer } from './Mailer';
+import { Mailer } from './folder/Mailer';
 
 export class NewsletterManager {
   private mailer: Mailer;
 
   constructor(mailer: Mailer) {
     this.mailer = mailer;
+  }
+
+  getMailerTransport() {
+    return this.mailer.getTransport();
   }
 }
 ```
@@ -63,22 +70,29 @@ parameters:
   mailer.transport: sendmail
 
 services:
-  Mailer:
+  mailer:
+    path: "folder/Mailer"
     arguments:
       - "%mailer.transport%"
-  NewsletterManager:
+  newsletterManager:
+    path: "NewsletterManager"
     arguments:
-      - "@Mailer"
+      - "@mailer"
 ```
 
 - Build your container:
 
 ```typescript
 // index.ts
+import { Container, YamlLoader } from 'netero';
+
 const container = new Container();
 container.load(new YamlLoader('./config.yaml'));
 container.compile();
-const newsletterManager = container.get('@NewsletterManager'); // NewsletterManager { mailer: Mailer }
+const newsletterManager = container.get('@newsletterManager');
+const newsletterManager = container.get('@newsletterManager');
+console.log(newsletterManager); // NewsletterManager { mailer: Mailer }
+console.log(newsletterManager.getMailerTransport()); // sendmail
 ```
 
 ## License

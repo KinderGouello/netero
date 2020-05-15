@@ -3,10 +3,12 @@ export default {
     'mailer.transport': 'sendmail',
   },
   services: {
-    'mock/fullConfiguration/manager/NewsletterManager': {
-      arguments: ['@mock.fullConfiguration.service.Mailer'],
+    newsletterManager: {
+      path: 'mock/fullConfiguration/manager/NewsletterManager',
+      arguments: ['@mailer'],
     },
-    'mock/fullConfiguration/service/Mailer': {
+    mailer: {
+      path: 'mock/fullConfiguration/service/Mailer',
       arguments: ['%mailer.transport%'],
     },
   },

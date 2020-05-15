@@ -3,7 +3,8 @@ export default {
     barName: 'bar name',
   },
   services: {
-    'mock/fromMultipleFiles/bar': {
+    bar: {
+      path: 'mock/fromMultipleFiles/bar',
       arguments: [42, '%barName%', '%bar.Name2%'],
     },
   },

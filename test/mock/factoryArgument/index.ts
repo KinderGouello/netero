@@ -1,6 +1,7 @@
 export default {
   services: {
-    'mock/factoryArgument/foo': {
+    foo: {
+      path: 'mock/factoryArgument/foo',
       arguments: [() => 42],
     },
   },

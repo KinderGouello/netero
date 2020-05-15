@@ -1,5 +1,7 @@
 export default {
   services: {
-    'mock/serviceAlreadyDeclared/foo': {},
+    foo: {
+      path: 'mock/serviceAlreadyDeclared/foo',
+    },
   },
 };

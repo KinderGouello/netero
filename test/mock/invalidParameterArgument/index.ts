@@ -1,6 +1,7 @@
 export default {
   services: {
-    'mock/invalidParameterArgument/foo': {
+    foo: {
+      path: 'mock/invalidParameterArgument/foo',
       arguments: ['%bar%'],
     },
   },
