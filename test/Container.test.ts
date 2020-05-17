@@ -28,6 +28,9 @@ import { NoClassDeclared } from '../src/errors/NoClassDeclared';
 import { InvalidServiceArgument } from '../src/errors/InvalidServiceArgument';
 import { InvalidParameterArgument } from '../src/errors/InvalidParameterArgument';
 import basic from './mock/basic';
+import tags from './mock/tags';
+import { Bar as TagsBar } from './mock/tags/bar';
+import { Baz as TagsBaz } from './mock/tags/baz';
 
 class TestLoader extends Loader {
   constructor(
@@ -199,6 +202,18 @@ describe('Container', () => {
       const fooService = container.get('@foo');
 
       expect(fooService.getFirstName()).toBe('name');
+    });
+
+    it('should inject classes by tag', () => {
+      const container = new Container();
+      container.load(new TestLoader(tags));
+      container.compile();
+      const fooService = container.get('@foo');
+      const providers = fooService.getProviders();
+
+      expect(providers.length).toBe(2);
+      expect(providers[0]).toBeInstanceOf(TagsBaz);
+      expect(providers[1]).toBeInstanceOf(TagsBar);
     });
 
     it('should inject all classes', () => {
