@@ -15,10 +15,14 @@ const validate = ajv.compile({
         '.+': {
           type: 'object',
           properties: {
+            path: {
+              type: 'string',
+            },
             arguments: {
               type: 'array',
             },
           },
+          required: ['path'],
         },
       },
     },
@@ -30,8 +34,8 @@ type ParameterDefinition = {
 };
 
 type ServiceDefinition = {
+  path: string;
   arguments: string[];
-  factory: () => void;
 };
 
 type FileConfig = {

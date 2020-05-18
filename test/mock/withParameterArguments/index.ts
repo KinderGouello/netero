@@ -4,7 +4,8 @@ export default {
     surname: 'surname',
   },
   services: {
-    'mock/withParameterArguments/foo': {
+    foo: {
+      path: 'mock/withParameterArguments/foo',
       arguments: ['%firstName%', '%surname%'],
     },
   },

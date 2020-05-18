@@ -4,12 +4,7 @@ import { Reference } from './Reference';
 import { Parameter } from './Parameter';
 import { Loader } from './loader/Loader';
 import { Service } from './Service';
-import {
-  getServiceAlias,
-  convertPathToAlias,
-  isClass,
-  isEs5Class,
-} from './Util';
+import { getServiceAlias, isClass, isEs5Class } from './Util';
 import { ParameterAlreadyDeclared } from './errors/ParameterAlreadyDeclared';
 import { ServiceAlreadyDeclared } from './errors/ServiceAlreadyDeclared';
 import { InvalidServiceArgument } from './errors/InvalidServiceArgument';
@@ -96,10 +91,9 @@ export class Container {
       this.addParameter(name, value);
     });
 
-    Object.entries(config.services).forEach(([filePath, service]) => {
-      const alias = convertPathToAlias(filePath);
-      require(`${this.root}/${filePath}`); // throw an error if the module does not exist
-      const definition = this.register(alias, `${this.root}/${filePath}`);
+    Object.entries(config.services).forEach(([alias, service]) => {
+      require(`${this.root}/${service.path}`); // throw an error if the module does not exist
+      const definition = this.register(alias, `${this.root}/${service.path}`);
 
       if (!service.arguments) {
         return;
@@ -135,8 +129,8 @@ export class Container {
       { definition: Definition; alias: string }
     >();
     this.definitions.forEach((definition, alias) => {
-      const classe = require(definition.getClass());
-      const instantiableClasses = Object.values(classe).filter(
+      const module = require(definition.getClass());
+      const instantiableClasses = Object.values(module).filter(
         (value) => isEs5Class(value) || isClass(value)
       );
 

@@ -1,6 +1,7 @@
 export default {
   services: {
-    'mock/withParameterArguments/foo': {
+    foo: {
+      path: 'mock/withParameterArguments/foo',
       arguments: ['@bar'],
     },
   },

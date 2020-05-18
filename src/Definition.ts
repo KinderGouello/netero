@@ -1,13 +1,13 @@
 export class Definition {
-  private classe: string;
+  private classPath: string;
   private arguments: any[] = [];
 
-  constructor(classe: string) {
-    this.classe = classe;
+  constructor(classPath: string) {
+    this.classPath = classPath;
   }
 
   getClass(): string {
-    return this.classe;
+    return this.classPath;
   }
 
   addArgument(argument: any): Definition {

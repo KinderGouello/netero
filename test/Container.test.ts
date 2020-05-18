@@ -105,7 +105,7 @@ describe('Container', () => {
       const container = new Container();
       container.load(new TestLoader(primitiveArguments));
       container.compile();
-      const fooService = container.get('@mock.primitiveArguments.foo');
+      const fooService = container.get('@foo');
 
       expect(fooService.getValues()).toEqual({
         firstName: 'first name',
@@ -118,7 +118,7 @@ describe('Container', () => {
       const container = new Container();
       container.load(new TestLoader(factoryArgument));
       container.compile();
-      const fooService = container.get('@mock.factoryArgument.foo');
+      const fooService = container.get('@foo');
 
       expect(fooService.getValue()).toEqual(42);
     });
@@ -127,7 +127,7 @@ describe('Container', () => {
       const container = new Container();
       container.load(new TestLoader(withParameterArgumentsConfig));
       container.compile();
-      const fooService = container.get('@mock.withParameterArguments.foo');
+      const fooService = container.get('@foo');
 
       expect(fooService.getNames()).toEqual({
         firstName: 'first name',
@@ -139,7 +139,7 @@ describe('Container', () => {
       const container = new Container();
       container.load(new TestLoader(withMultipleClasses));
       container.compile();
-      const barService = container.get('@mock.withMultipleClasses.foo');
+      const barService = container.get('@foo');
 
       expect(barService).toBeInstanceOf(BarMultipleClasses);
     });
@@ -150,8 +150,8 @@ describe('Container', () => {
       container.load(new TestLoader(fromMultipleFiles2));
       container.compile();
 
-      const fooService = container.get('@mock.fromMultipleFiles.foo');
-      const barService = container.get('@mock.fromMultipleFiles.bar');
+      const fooService = container.get('@foo');
+      const barService = container.get('@bar');
 
       expect(barService).toBeInstanceOf(FromMultipleFilesBar);
       expect(barService.getValues()).toEqual({
@@ -168,7 +168,7 @@ describe('Container', () => {
       const container = new Container();
       container.load(new TestLoader(es5Class));
       container.compile();
-      const fooService = container.get('@mock.es5Class.foo');
+      const fooService = container.get('@foo');
 
       expect(fooService.getFirstName()).toBe('name');
     });
@@ -177,10 +177,8 @@ describe('Container', () => {
       const container = new Container();
       container.load(new TestLoader(fullConfiguration));
       container.compile();
-      const newsletterManager = container.get(
-        '@mock.fullConfiguration.manager.NewsletterManager'
-      );
-      const mailer = container.get('@mock.fullConfiguration.service.Mailer');
+      const newsletterManager = container.get('@newsletterManager');
+      const mailer = container.get('@mailer');
 
       expect(newsletterManager).toBeInstanceOf(NewsletterManager);
       expect(newsletterManager.getMailer()).toBe(mailer);
