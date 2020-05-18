@@ -4,8 +4,9 @@ export default {
     'bar.Name2': 'bar name 2',
   },
   services: {
-    'mock/fromMultipleFiles/foo': {
-      arguments: ['%fooName%', '@mock.fromMultipleFiles.bar'],
+    foo: {
+      path: 'mock/fromMultipleFiles/foo',
+      arguments: ['%fooName%', '@bar'],
     },
   },
 };

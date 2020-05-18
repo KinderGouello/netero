@@ -1,5 +1,7 @@
 export default {
   services: {
-    'mock/withNoClass/foo': {},
+    foo: {
+      path: 'mock/withNoClass/foo',
+    },
   },
 };
