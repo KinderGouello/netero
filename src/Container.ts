@@ -11,6 +11,7 @@ import { InvalidServiceArgument } from './errors/InvalidServiceArgument';
 import { InvalidParameterArgument } from './errors/InvalidParameterArgument';
 import { NoClassDeclared } from './errors/NoClassDeclared';
 import { ServiceNotExist } from './errors/ServiceNotExist';
+import { ReferenceList } from './ReferenceList';
 
 export class Container {
   // @ts-ignore
@@ -18,6 +19,7 @@ export class Container {
   private definitions = new Map<string, any>();
   private services = new Map<string, Service>();
   private parameters = new Map<string, any>();
+  private tags = new Map<string, string[]>();
 
   private addParameter(parameter: string, value: any): void {
     const parameterValue = this.parameters.get(parameter);
@@ -36,6 +38,15 @@ export class Container {
     return this.definitions.get(alias);
   }
 
+  private getServiceInstance(name: string, alias: string) {
+    const service = this.services.get(`${name}`);
+    if (!service) {
+      throw new InvalidServiceArgument(alias, name);
+    }
+
+    return service.getInstance();
+  }
+
   private getInstanceRequirements(
     definition: Definition,
     alias: string,
@@ -51,11 +62,19 @@ export class Container {
       definition.getArguments().forEach((arg: any) => {
         switch (arg.constructor) {
           case Reference:
-            const service = this.services.get(`${arg}`);
-            if (!service) {
-              throw new InvalidServiceArgument(alias, arg);
-            }
-            instanceArguments = [...instanceArguments, service.getInstance()];
+            instanceArguments = [
+              ...instanceArguments,
+              this.getServiceInstance(arg, alias),
+            ];
+            return;
+
+          case ReferenceList:
+            const serviceList = arg
+              .getList()
+              .map((serviceName: string) =>
+                this.getServiceInstance(serviceName, alias)
+              );
+            instanceArguments = [...instanceArguments, serviceList];
             return;
 
           case Parameter:
@@ -92,6 +111,20 @@ export class Container {
     });
 
     Object.entries(config.services).forEach(([alias, service]) => {
+      if (!service.tags) {
+        return;
+      }
+      service.tags.forEach((tag: string) => {
+        const servicesWithTag = this.tags.get(tag);
+        if (servicesWithTag && !servicesWithTag.includes(alias)) {
+          this.tags.set(tag, [...servicesWithTag, alias]);
+          return;
+        }
+        this.tags.set(tag, [alias]);
+      });
+    });
+
+    Object.entries(config.services).forEach(([alias, service]) => {
       require(`${this.root}/${service.path}`); // throw an error if the module does not exist
       const definition = this.register(alias, `${this.root}/${service.path}`);
 
@@ -104,6 +137,13 @@ export class Container {
           if (serviceArgument.charAt(0) === '@') {
             const serviceAlias = serviceArgument.substring(1);
             definition.addArgument(new Reference(serviceAlias));
+            return;
+          }
+
+          if (serviceArgument.charAt(0) === '#') {
+            const servicesWithTag =
+              this.tags.get(serviceArgument.substring(1)) || [];
+            definition.addArgument(new ReferenceList(servicesWithTag));
             return;
           }
 
