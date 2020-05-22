@@ -27,6 +27,7 @@ import { ServiceAlreadyDeclared } from '../src/errors/ServiceAlreadyDeclared';
 import { NoClassDeclared } from '../src/errors/NoClassDeclared';
 import { InvalidServiceArgument } from '../src/errors/InvalidServiceArgument';
 import { InvalidParameterArgument } from '../src/errors/InvalidParameterArgument';
+import basic from './mock/basic';
 
 class TestLoader extends Loader {
   constructor(
@@ -44,13 +45,40 @@ describe('Container', () => {
     it('should throw an error if the service does not exist', () => {
       const container = new Container();
       container.load(new TestLoader());
+      container.compile();
       expect(() => container.get('@service')).toThrow(ServiceNotExist);
     });
 
     it('should throw an error if the service name is not well formatted', () => {
       const container = new Container();
       container.load(new TestLoader());
+      container.compile();
       expect(() => container.get('service')).toThrow(InvalidServiceAlias);
+    });
+  });
+
+  describe('has', () => {
+    it('should return false if the service does not exist', () => {
+      const container = new Container();
+      container.load(new TestLoader(basic));
+      container.compile();
+      const service = container.has('@unknown');
+      expect(service).toBe(false);
+    });
+
+    it('should return false if the service name is not well formatted', () => {
+      const container = new Container();
+      container.load(new TestLoader(basic));
+      container.compile();
+      expect(container.has('foo')).toBe(false);
+    });
+
+    it('should return true if the service exists', () => {
+      const container = new Container();
+      container.load(new TestLoader(basic));
+      container.compile();
+      const service = container.has('@foo');
+      expect(service).toBe(true);
     });
   });
 
