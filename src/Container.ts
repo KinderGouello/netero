@@ -128,6 +128,10 @@ export class Container {
       require(`${this.root}/${service.path}`); // throw an error if the module does not exist
       const definition = this.register(alias, `${this.root}/${service.path}`);
 
+      if (service.class) {
+        definition.defineClass(service.class);
+      }
+
       if (!service.arguments) {
         return;
       }
@@ -170,9 +174,15 @@ export class Container {
     >();
     this.definitions.forEach((definition, alias) => {
       const module = require(definition.getClass());
-      const instantiableClasses = Object.values(module).filter(
+      const className = definition.getClassName();
+      let instantiableClasses = Object.values(module).filter(
         (value) => isEs5Class(value) || isClass(value)
-      );
+      ) as (() => void)[];
+      if (className) {
+        instantiableClasses = instantiableClasses.filter(
+          (instantiableClass) => instantiableClass.name === className
+        );
+      }
 
       if (!instantiableClasses.length) {
         throw new NoClassDeclared(alias);

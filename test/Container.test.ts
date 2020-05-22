@@ -4,6 +4,7 @@ import noParameterConfig from './mock/noParameter';
 import noServiceConfig from './mock/noService';
 import withParameterArgumentsConfig from './mock/withParameterArguments';
 import withMultipleClasses from './mock/withMultipleClasses';
+import { Foo as FooMultipleClasses } from './mock/withMultipleClasses/foo';
 import { Bar as BarMultipleClasses } from './mock/withMultipleClasses/foo';
 import invalidServiceArgument from './mock/invalidServiceArgument';
 import primitiveArguments from './mock/primitiveArguments';
@@ -170,8 +171,10 @@ describe('Container', () => {
       const container = new Container();
       container.load(new TestLoader(withMultipleClasses));
       container.compile();
-      const barService = container.get('@foo');
+      const fooService = container.get('@foo');
+      const barService = container.get('@bar');
 
+      expect(fooService).toBeInstanceOf(FooMultipleClasses);
       expect(barService).toBeInstanceOf(BarMultipleClasses);
     });
 
