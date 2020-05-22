@@ -18,6 +18,9 @@ const validate = ajv.compile({
             path: {
               type: 'string',
             },
+            class: {
+              type: 'string',
+            },
             arguments: {
               type: 'array',
             },
@@ -38,6 +41,7 @@ type ParameterDefinition = {
 
 type ServiceDefinition = {
   path: string;
+  class: string;
   arguments: string[];
   tags: string[];
 };
