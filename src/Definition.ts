@@ -1,3 +1,6 @@
+import { NoClassDeclared } from './errors/NoClassDeclared';
+import { isClass, isEs5Class } from './Util';
+
 export class Definition {
   private classPath: string;
   private className: string | undefined;
@@ -7,8 +10,23 @@ export class Definition {
     this.classPath = classPath;
   }
 
-  getClass(): string {
-    return this.classPath;
+  getClass(alias: string): any {
+    const module = require(this.classPath);
+    const className = this.className;
+    let instantiableClasses = Object.values(module).filter(
+      (value) => isEs5Class(value) || isClass(value)
+    ) as (() => void)[];
+    if (className) {
+      instantiableClasses = instantiableClasses.filter(
+        (instantiableClass) => instantiableClass.name === className
+      );
+    }
+
+    if (!instantiableClasses.length) {
+      throw new NoClassDeclared(alias);
+    }
+
+    return instantiableClasses[0];
   }
 
   addArgument(argument: any): Definition {
@@ -23,9 +41,5 @@ export class Definition {
 
   getArguments(): any[] {
     return this.arguments;
-  }
-
-  getClassName(): string | undefined {
-    return this.className;
   }
 }
