@@ -5,6 +5,7 @@ const ajv = new Ajv({
   allErrors: true,
 });
 const validate = ajv.compile({
+  type: 'object',
   properties: {
     parameters: {
       type: 'object',
@@ -46,7 +47,7 @@ type ServiceDefinition = {
   tags: string[];
 };
 
-type FileConfig = {
+export type FileConfig = {
   parameters: ParameterDefinition[];
   services: ServiceDefinition[];
 };
