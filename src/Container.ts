@@ -4,12 +4,11 @@ import { Reference } from './Reference';
 import { Parameter } from './Parameter';
 import { Loader } from './loader/Loader';
 import { Service } from './Service';
-import { getServiceAlias, isClass, isEs5Class } from './Util';
+import { getServiceAlias } from './Util';
 import { ParameterAlreadyDeclared } from './errors/ParameterAlreadyDeclared';
 import { ServiceAlreadyDeclared } from './errors/ServiceAlreadyDeclared';
 import { InvalidServiceArgument } from './errors/InvalidServiceArgument';
 import { InvalidParameterArgument } from './errors/InvalidParameterArgument';
-import { NoClassDeclared } from './errors/NoClassDeclared';
 import { ServiceNotExist } from './errors/ServiceNotExist';
 import { ReferenceList } from './ReferenceList';
 
@@ -107,7 +106,12 @@ export class Container {
     const config = loader.getConfig();
 
     Object.entries(config.parameters).forEach(([name, value]) => {
-      this.addParameter(name, value);
+      const envVarRegex = /%env\((.*)\)%/.exec((value as any) as string);
+      if (envVarRegex) {
+        return this.addParameter(name, process.env[envVarRegex[1]]);
+      }
+
+      return this.addParameter(name, value);
     });
 
     Object.entries(config.services).forEach(([alias, service]) => {
@@ -173,32 +177,23 @@ export class Container {
       { definition: Definition; alias: string }
     >();
     this.definitions.forEach((definition, alias) => {
-      const module = require(definition.getClass());
-      const className = definition.getClassName();
-      let instantiableClasses = Object.values(module).filter(
-        (value) => isEs5Class(value) || isClass(value)
-      ) as (() => void)[];
-      if (className) {
-        instantiableClasses = instantiableClasses.filter(
-          (instantiableClass) => instantiableClass.name === className
-        );
-      }
-
-      if (!instantiableClasses.length) {
-        throw new NoClassDeclared(alias);
-      }
-
-      lazyInstances.set(instantiableClasses[0], {
+      lazyInstances.set(definition.getClass(alias), {
         definition,
         alias,
       });
     });
 
+    this.lazyLoadClasses(lazyInstances);
+  }
+
+  lazyLoadClasses(
+    instances: Map<any, { definition: Definition; alias: string }>
+  ): void {
     let previousInstances;
 
     do {
-      previousInstances = new Map(lazyInstances);
-      lazyInstances.forEach(({ definition, alias }, instance) => {
+      previousInstances = new Map(instances);
+      instances.forEach(({ definition, alias }, instance) => {
         const { isReady, instanceArguments } = this.getInstanceRequirements(
           definition,
           alias
@@ -209,13 +204,13 @@ export class Container {
             alias,
             new Service(new instance(...instanceArguments))
           );
-          lazyInstances.delete(instance);
+          instances.delete(instance);
         }
       });
-    } while (lazyInstances.size < previousInstances.size);
+    } while (instances.size < previousInstances.size);
 
-    if (lazyInstances.size > 0) {
-      lazyInstances.forEach(({ definition, alias }, _) => {
+    if (instances.size > 0) {
+      instances.forEach(({ definition, alias }, _) => {
         this.getInstanceRequirements(definition, alias, true);
       });
     }
