@@ -32,6 +32,7 @@ import basic from './mock/basic';
 import tags from './mock/tags';
 import { Bar as TagsBar } from './mock/tags/bar';
 import { Baz as TagsBaz } from './mock/tags/baz';
+import envVariable from './mock/envVariable';
 
 class TestLoader extends Loader {
   constructor(
@@ -165,6 +166,17 @@ describe('Container', () => {
         firstName: 'first name',
         surname: 'surname',
       });
+    });
+
+    it('should inject service with env variable parameter', () => {
+      process.env.VERY_UNIQUE_ENV_VARIABLE_MOCK = '42';
+      const container = new Container();
+      container.load(new TestLoader(envVariable));
+      container.compile();
+      const fooService = container.get('@foo');
+
+      expect(fooService.getValue()).toEqual('42');
+      process.env.VERY_UNIQUE_ENV_VARIABLE_MOCK = undefined;
     });
 
     it('should inject only first class for file with multiple classes', () => {
