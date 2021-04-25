@@ -3,7 +3,8 @@ export default {
     name: 'test',
   },
   services: {
-    'service/foo': {
+    foo: {
+      path: 'service/foo',
       arguments: ['%name%'],
     },
   },

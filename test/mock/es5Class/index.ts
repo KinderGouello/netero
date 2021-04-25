@@ -1,6 +1,7 @@
 export default {
   services: {
-    'mock/es5Class/foo': {
+    foo: {
+      path: 'mock/es5Class/foo',
       arguments: ['name'],
     },
   },

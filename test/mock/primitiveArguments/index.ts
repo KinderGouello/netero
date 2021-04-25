@@ -1,6 +1,7 @@
 export default {
   services: {
-    'mock/primitiveArguments/foo': {
+    foo: {
+      path: 'mock/primitiveArguments/foo',
       arguments: ['first name', 42, ['foo', 'bar']],
     },
   },

@@ -1,5 +1,12 @@
 export default {
   services: {
-    'mock/withMultipleClasses/foo': {},
+    foo: {
+      path: 'mock/withMultipleClasses/foo',
+      class: 'Foo',
+    },
+    bar: {
+      path: 'mock/withMultipleClasses/foo',
+      class: 'Bar',
+    },
   },
 };

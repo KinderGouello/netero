@@ -4,6 +4,7 @@ import noParameterConfig from './mock/noParameter';
 import noServiceConfig from './mock/noService';
 import withParameterArgumentsConfig from './mock/withParameterArguments';
 import withMultipleClasses from './mock/withMultipleClasses';
+import { Foo as FooMultipleClasses } from './mock/withMultipleClasses/foo';
 import { Bar as BarMultipleClasses } from './mock/withMultipleClasses/foo';
 import invalidServiceArgument from './mock/invalidServiceArgument';
 import primitiveArguments from './mock/primitiveArguments';
@@ -27,6 +28,11 @@ import { ServiceAlreadyDeclared } from '../src/errors/ServiceAlreadyDeclared';
 import { NoClassDeclared } from '../src/errors/NoClassDeclared';
 import { InvalidServiceArgument } from '../src/errors/InvalidServiceArgument';
 import { InvalidParameterArgument } from '../src/errors/InvalidParameterArgument';
+import basic from './mock/basic';
+import tags from './mock/tags';
+import { Bar as TagsBar } from './mock/tags/bar';
+import { Baz as TagsBaz } from './mock/tags/baz';
+import envVariable from './mock/envVariable';
 
 class TestLoader extends Loader {
   constructor(
@@ -44,13 +50,40 @@ describe('Container', () => {
     it('should throw an error if the service does not exist', () => {
       const container = new Container();
       container.load(new TestLoader());
+      container.compile();
       expect(() => container.get('@service')).toThrow(ServiceNotExist);
     });
 
     it('should throw an error if the service name is not well formatted', () => {
       const container = new Container();
       container.load(new TestLoader());
+      container.compile();
       expect(() => container.get('service')).toThrow(InvalidServiceAlias);
+    });
+  });
+
+  describe('has', () => {
+    it('should return false if the service does not exist', () => {
+      const container = new Container();
+      container.load(new TestLoader(basic));
+      container.compile();
+      const service = container.has('@unknown');
+      expect(service).toBe(false);
+    });
+
+    it('should return false if the service name is not well formatted', () => {
+      const container = new Container();
+      container.load(new TestLoader(basic));
+      container.compile();
+      expect(container.has('foo')).toBe(false);
+    });
+
+    it('should return true if the service exists', () => {
+      const container = new Container();
+      container.load(new TestLoader(basic));
+      container.compile();
+      const service = container.has('@foo');
+      expect(service).toBe(true);
     });
   });
 
@@ -105,7 +138,7 @@ describe('Container', () => {
       const container = new Container();
       container.load(new TestLoader(primitiveArguments));
       container.compile();
-      const fooService = container.get('@mock.primitiveArguments.foo');
+      const fooService = container.get('@foo');
 
       expect(fooService.getValues()).toEqual({
         firstName: 'first name',
@@ -118,7 +151,7 @@ describe('Container', () => {
       const container = new Container();
       container.load(new TestLoader(factoryArgument));
       container.compile();
-      const fooService = container.get('@mock.factoryArgument.foo');
+      const fooService = container.get('@foo');
 
       expect(fooService.getValue()).toEqual(42);
     });
@@ -127,7 +160,7 @@ describe('Container', () => {
       const container = new Container();
       container.load(new TestLoader(withParameterArgumentsConfig));
       container.compile();
-      const fooService = container.get('@mock.withParameterArguments.foo');
+      const fooService = container.get('@foo');
 
       expect(fooService.getNames()).toEqual({
         firstName: 'first name',
@@ -135,12 +168,25 @@ describe('Container', () => {
       });
     });
 
+    it('should inject service with env variable parameter', () => {
+      process.env.VERY_UNIQUE_ENV_VARIABLE_MOCK = '42';
+      const container = new Container();
+      container.load(new TestLoader(envVariable));
+      container.compile();
+      const fooService = container.get('@foo');
+
+      expect(fooService.getValue()).toEqual('42');
+      process.env.VERY_UNIQUE_ENV_VARIABLE_MOCK = undefined;
+    });
+
     it('should inject only first class for file with multiple classes', () => {
       const container = new Container();
       container.load(new TestLoader(withMultipleClasses));
       container.compile();
-      const barService = container.get('@mock.withMultipleClasses.foo');
+      const fooService = container.get('@foo');
+      const barService = container.get('@bar');
 
+      expect(fooService).toBeInstanceOf(FooMultipleClasses);
       expect(barService).toBeInstanceOf(BarMultipleClasses);
     });
 
@@ -150,8 +196,8 @@ describe('Container', () => {
       container.load(new TestLoader(fromMultipleFiles2));
       container.compile();
 
-      const fooService = container.get('@mock.fromMultipleFiles.foo');
-      const barService = container.get('@mock.fromMultipleFiles.bar');
+      const fooService = container.get('@foo');
+      const barService = container.get('@bar');
 
       expect(barService).toBeInstanceOf(FromMultipleFilesBar);
       expect(barService.getValues()).toEqual({
@@ -168,19 +214,29 @@ describe('Container', () => {
       const container = new Container();
       container.load(new TestLoader(es5Class));
       container.compile();
-      const fooService = container.get('@mock.es5Class.foo');
+      const fooService = container.get('@foo');
 
       expect(fooService.getFirstName()).toBe('name');
+    });
+
+    it('should inject classes by tag', () => {
+      const container = new Container();
+      container.load(new TestLoader(tags));
+      container.compile();
+      const fooService = container.get('@foo');
+      const providers = fooService.getProviders();
+
+      expect(providers.length).toBe(2);
+      expect(providers[0]).toBeInstanceOf(TagsBaz);
+      expect(providers[1]).toBeInstanceOf(TagsBar);
     });
 
     it('should inject all classes', () => {
       const container = new Container();
       container.load(new TestLoader(fullConfiguration));
       container.compile();
-      const newsletterManager = container.get(
-        '@mock.fullConfiguration.manager.NewsletterManager'
-      );
-      const mailer = container.get('@mock.fullConfiguration.service.Mailer');
+      const newsletterManager = container.get('@newsletterManager');
+      const mailer = container.get('@mailer');
 
       expect(newsletterManager).toBeInstanceOf(NewsletterManager);
       expect(newsletterManager.getMailer()).toBe(mailer);

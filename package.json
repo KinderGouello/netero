@@ -5,9 +5,9 @@
   "version": "0.2.0",
   "description": "Typescript framework agnostic dependency injection library",
   "dependencies": {
-    "ajv": "^6.12.2",
-    "js-yaml": "^3.13.1",
-    "wavy": "^1.0.4"
+    "ajv": "8.1.0",
+    "js-yaml": "4.1.0",
+    "wavy": "1.0.4"
   },
   "scripts": {
     "build": "tsc",
@@ -42,16 +42,16 @@
   "author": "Rémy Gouello",
   "license": "MIT",
   "devDependencies": {
-    "@types/jest": "^25.2.1",
-    "@types/js-yaml": "^3.12.3",
-    "@types/node": "^13.13.5",
-    "conventional-changelog": "^3.1.21",
-    "jest": "^25.5.4",
-    "prettier": "^2.0.5",
-    "ts-jest": "^25.5.1",
-    "ts-node": "^8.10.1",
-    "tslint": "^6.1.2",
-    "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.8.3"
+    "@types/jest": "26.0.22",
+    "@types/js-yaml": "4.0.1",
+    "@types/node": "14.14.41",
+    "conventional-changelog": "3.1.24",
+    "jest": "26.6.3",
+    "prettier": "2.2.1",
+    "ts-jest": "26.5.5",
+    "ts-node": "9.1.1",
+    "tslint": "6.1.3",
+    "tslint-config-prettier": "1.18.0",
+    "typescript": "4.2.4"
   }
 }

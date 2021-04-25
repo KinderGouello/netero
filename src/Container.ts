@@ -4,18 +4,13 @@ import { Reference } from './Reference';
 import { Parameter } from './Parameter';
 import { Loader } from './loader/Loader';
 import { Service } from './Service';
-import {
-  getServiceAlias,
-  convertPathToAlias,
-  isClass,
-  isEs5Class,
-} from './Util';
+import { getServiceAlias } from './Util';
 import { ParameterAlreadyDeclared } from './errors/ParameterAlreadyDeclared';
 import { ServiceAlreadyDeclared } from './errors/ServiceAlreadyDeclared';
 import { InvalidServiceArgument } from './errors/InvalidServiceArgument';
 import { InvalidParameterArgument } from './errors/InvalidParameterArgument';
-import { NoClassDeclared } from './errors/NoClassDeclared';
 import { ServiceNotExist } from './errors/ServiceNotExist';
+import { ReferenceList } from './ReferenceList';
 
 export class Container {
   // @ts-ignore
@@ -23,6 +18,7 @@ export class Container {
   private definitions = new Map<string, any>();
   private services = new Map<string, Service>();
   private parameters = new Map<string, any>();
+  private tags = new Map<string, string[]>();
 
   private addParameter(parameter: string, value: any): void {
     const parameterValue = this.parameters.get(parameter);
@@ -41,6 +37,15 @@ export class Container {
     return this.definitions.get(alias);
   }
 
+  private getServiceInstance(name: string, alias: string) {
+    const service = this.services.get(`${name}`);
+    if (!service) {
+      throw new InvalidServiceArgument(alias, name);
+    }
+
+    return service.getInstance();
+  }
+
   private getInstanceRequirements(
     definition: Definition,
     alias: string,
@@ -56,11 +61,19 @@ export class Container {
       definition.getArguments().forEach((arg: any) => {
         switch (arg.constructor) {
           case Reference:
-            const service = this.services.get(`${arg}`);
-            if (!service) {
-              throw new InvalidServiceArgument(alias, arg);
-            }
-            instanceArguments = [...instanceArguments, service.getInstance()];
+            instanceArguments = [
+              ...instanceArguments,
+              this.getServiceInstance(arg, alias),
+            ];
+            return;
+
+          case ReferenceList:
+            const serviceList = arg
+              .getList()
+              .map((serviceName: string) =>
+                this.getServiceInstance(serviceName, alias)
+              );
+            instanceArguments = [...instanceArguments, serviceList];
             return;
 
           case Parameter:
@@ -93,13 +106,35 @@ export class Container {
     const config = loader.getConfig();
 
     Object.entries(config.parameters).forEach(([name, value]) => {
-      this.addParameter(name, value);
+      const envVarRegex = /%env\((.*)\)%/.exec((value as any) as string);
+      if (envVarRegex) {
+        return this.addParameter(name, process.env[envVarRegex[1]]);
+      }
+
+      return this.addParameter(name, value);
     });
 
-    Object.entries(config.services).forEach(([filePath, service]) => {
-      const alias = convertPathToAlias(filePath);
-      require(`${this.root}/${filePath}`); // throw an error if the module does not exist
-      const definition = this.register(alias, `${this.root}/${filePath}`);
+    Object.entries(config.services).forEach(([alias, service]) => {
+      if (!service.tags) {
+        return;
+      }
+      service.tags.forEach((tag: string) => {
+        const servicesWithTag = this.tags.get(tag);
+        if (servicesWithTag && !servicesWithTag.includes(alias)) {
+          this.tags.set(tag, [...servicesWithTag, alias]);
+          return;
+        }
+        this.tags.set(tag, [alias]);
+      });
+    });
+
+    Object.entries(config.services).forEach(([alias, service]) => {
+      require(`${this.root}/${service.path}`); // throw an error if the module does not exist
+      const definition = this.register(alias, `${this.root}/${service.path}`);
+
+      if (service.class) {
+        definition.defineClass(service.class);
+      }
 
       if (!service.arguments) {
         return;
@@ -110,6 +145,13 @@ export class Container {
           if (serviceArgument.charAt(0) === '@') {
             const serviceAlias = serviceArgument.substring(1);
             definition.addArgument(new Reference(serviceAlias));
+            return;
+          }
+
+          if (serviceArgument.charAt(0) === '#') {
+            const servicesWithTag =
+              this.tags.get(serviceArgument.substring(1)) || [];
+            definition.addArgument(new ReferenceList(servicesWithTag));
             return;
           }
 
@@ -135,26 +177,23 @@ export class Container {
       { definition: Definition; alias: string }
     >();
     this.definitions.forEach((definition, alias) => {
-      const classe = require(definition.getClass());
-      const instantiableClasses = Object.values(classe).filter(
-        (value) => isEs5Class(value) || isClass(value)
-      );
-
-      if (!instantiableClasses.length) {
-        throw new NoClassDeclared(alias);
-      }
-
-      lazyInstances.set(instantiableClasses[0], {
+      lazyInstances.set(definition.getClass(alias), {
         definition,
         alias,
       });
     });
 
+    this.lazyLoadClasses(lazyInstances);
+  }
+
+  lazyLoadClasses(
+    instances: Map<any, { definition: Definition; alias: string }>
+  ): void {
     let previousInstances;
 
     do {
-      previousInstances = new Map(lazyInstances);
-      lazyInstances.forEach(({ definition, alias }, instance) => {
+      previousInstances = new Map(instances);
+      instances.forEach(({ definition, alias }, instance) => {
         const { isReady, instanceArguments } = this.getInstanceRequirements(
           definition,
           alias
@@ -165,13 +204,13 @@ export class Container {
             alias,
             new Service(new instance(...instanceArguments))
           );
-          lazyInstances.delete(instance);
+          instances.delete(instance);
         }
       });
-    } while (lazyInstances.size < previousInstances.size);
+    } while (instances.size < previousInstances.size);
 
-    if (lazyInstances.size > 0) {
-      lazyInstances.forEach(({ definition, alias }, _) => {
+    if (instances.size > 0) {
+      instances.forEach(({ definition, alias }, _) => {
         this.getInstanceRequirements(definition, alias, true);
       });
     }
@@ -183,5 +222,13 @@ export class Container {
       throw new ServiceNotExist(alias);
     }
     return service.getInstance();
+  }
+
+  has(alias: string): boolean {
+    try {
+      return !!this.services.get(getServiceAlias(alias));
+    } catch (error) {
+      return false;
+    }
   }
 }

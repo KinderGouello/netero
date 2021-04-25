@@ -1,10 +1,6 @@
 import { InvalidServiceAlias } from './errors/InvalidServiceAlias';
 
-export function convertPathToAlias(path: string): string {
-  return path.replace(/\//g, '.');
-}
-
-export function getServiceAlias(alias: string) {
+export function getServiceAlias(alias: string): string {
   if (alias.charAt(0) !== '@') {
     throw new InvalidServiceAlias(alias);
   }
