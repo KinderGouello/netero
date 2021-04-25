@@ -2,7 +2,7 @@
   "name": "netero",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "version": "0.2.0",
+  "version": "0.3.1",
   "description": "Typescript framework agnostic dependency injection library",
   "dependencies": {
     "ajv": "8.1.0",
